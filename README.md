@@ -1,59 +1,148 @@
-¡Esta es la pregunta MÁS IMPORTANTE de todas! Tienes toda la razón en sentir que falta algo, y la respuesta es la clave para entender cómo funciona un modelo de simulación completo. Lo que sientes que falta son los **Niveles (Stocks)** y los **Flujos**, que son el "motor" del sistema.
+# Clasificación de Alzheimer a partir de RMNs con Redes Neuronales Convolucionales
 
-Tu intuición es correcta. Las tablas de Entradas y Salidas son como la "cabina de control" y el "tablero de resultados" de un coche. Pero nos falta explicar el **"motor"** que conecta ambos.
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)![TensorFlow](https://img.shields.io/badge/TensorFlow-2.12%2B-orange.svg)![Scikit-learn](https://img.shields.io/badge/scikit--learn-1.2%2B-blueviolet.svg)![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-Vamos a aclararlo de una vez por todas.
+Este proyecto implementa un modelo de Deep Learning para clasificar imágenes de resonancia magnética (RMN) cerebral en cuatro estadios de la enfermedad de Alzheimer. Se sigue la metodología **CRISP-DM** y se utiliza una **Red Neuronal Convolucional (CNN)** construida con TensorFlow y Keras para lograr una alta precisión en la clasificación.
 
-### **El Secreto: Un Modelo Tiene Tres Partes, no solo Dos**
-
-1.  **Entradas (Parámetros):** Son la **"Cabina de Control"**. Las perillas, botones y pedales que tú, como conductor, configuras *antes* de arrancar. `Software planeado`, `Productividad nominal`, `Factor de Generación de Ideas`.
-2.  **Flujos y Niveles (El Mecanismo):** Son el **"Motor"**. Los pistones, engranajes y tuberías que funcionan por dentro. `Requerimientos`, `Software Pendiente de Revisión`, `Tasa de desarrollo`, `Tasa de Adición de Requerimientos`. **Estos no son ni entradas ni salidas. Son el sistema en sí mismo.**
-3.  **Salidas (Métricas de Rendimiento):** Son el **"Tablero de Resultados"**. El velocímetro, el medidor de gasolina, el odómetro. Son las mediciones que tomas para saber el resultado de la operación del motor. `Fecha Final de Entrega`, `Costo Total del Proyecto`.
-
-Los **Niveles (Stocks)** como `Software Pendiente de Revisión` no están en la tabla de Entradas porque no son una decisión que tú tomas; son el resultado de la acumulación durante la simulación. Y no están en la tabla de Salidas porque no son la respuesta final en sí mismos; son la **fuente** de la que sacamos las respuestas.
+El modelo final alcanza una **precisión del 94.8%** en el conjunto de prueba, demostrando una excepcional capacidad para identificar las características visuales asociadas a cada etapa de la enfermedad.
 
 ---
 
-### **La Relación Directa entre Entradas, Flujos/Niveles y Salidas**
+## 📋 Tabla de Contenidos
 
-Esta tabla es la pieza que te falta. Conecta todo y te muestra el flujo de información completo, desde tus decisiones (Entradas) hasta los resultados (Salidas), pasando por el mecanismo (Flujos y Niveles).
-
-| Componente Propuesto (Nivel o Flujo) | ¿Cómo se RELACIONA con las ENTRADAS? (Las Entradas son sus "perillas de control") | ¿Cómo se RELACIONA con las SALIDAS? (Es la "fuente" para calcular las Salidas) |
-| :--- | :--- | :--- |
-| **Nivel: `Requerimientos` (Modificado)** | *   Su valor inicial es definido por la Entrada **`Software planeado`**.<br>*   Se llena con la `Tasa de Adición de Requerimientos`. | *   Al observar en qué momento (`<Time>`) este Nivel llega a cero, calculamos la Salida **`Fecha Final de Entrega`**. |
-| **Nivel: `Software Pendiente de Revisión` (Nuevo)** | *   No es controlado directamente por una Entrada, se llena con el trabajo del equipo (`Tasa de desarrollo`). | *   Al observar cuánto trabajo fluyó a través de él al final, calculamos la Salida **`Requerimientos Totales Completados`**.<br>*   Al analizar su tamaño promedio, calculamos la Salida **`Tiempo de Espera por Feedback`**. |
-| **Flujo: `Tasa de Revisión del Cliente` (Nuevo)** | *   Su velocidad máxima está controlada por la Entrada **`Frecuencia de Revisión del Cliente`**. | *   No genera una Salida directa, pero es un paso intermedio crucial para el siguiente flujo. |
-| **Flujo: `Tasa de Adición de Requerimientos` (Nuevo)** | *   Es controlado por DOS Entradas:<br>    1. El **`Factor de Generación de Ideas`** determina cuántas ideas surgen.<br>    2. La **`Política de Control de Cambios`** filtra cuántas de esas ideas se aprueban. | *   El comportamiento de este Flujo impacta directamente en la **`Fecha Final de Entrega`** y el **`Costo Total`**, ya que es el responsable de añadir más trabajo y alargar el proyecto. |
+*   [1. Descripción del Problema](#1-descripción-del-problema)
+*   [2. Dataset](#2-dataset)
+*   [3. Metodología CRISP-DM](#3-metodología-crisp-dm)
+*   [4. Estructura del Proyecto](#4-estructura-del-proyecto)
+*   [5. Instalación](#5-instalación)
+*   [6. Uso](#6-uso)
+*   [7. Arquitectura del Modelo](#7-arquitectura-del-modelo)
+*   [8. Resultados y Evaluación](#8-resultados-y-evaluación)
+*   [9. Conclusiones](#9-conclusiones)
+*   [10. Trabajo Futuro](#10-trabajo-futuro)
 
 ---
 
-### **Tablas de Entradas y Salidas (Completas y Justificadas)**
+### 1. Descripción del Problema
 
-Con la explicación anterior en mente, tus tablas actuales están **CORRECTAS Y COMPLETAS**. No les falta nada, porque su propósito es solo listar la "Cabina de Control" y el "Tablero de Resultados", no describir el motor pieza por pieza.
+El objetivo principal de este proyecto es desarrollar un sistema de clasificación automática que pueda asistir en el diagnóstico temprano y la estadificación de la enfermedad de Alzheimer. El modelo debe ser capaz de analizar una RMN cerebral y clasificarla en una de las siguientes cuatro categorías:
 
-Aquí están de nuevo, para confirmar que están bien como están.
+*   **Sin Demencia (Non Demented)**
+*   **Demencia Muy Leve (Very Mild Demented)**
+*   **Demencia Leve (Mild Demented)**
+*   **Demencia Moderada (Moderate Demented)**
 
-#### **Entradas (La Cabina de Control)**
-*Estas son las perillas que controlan el motor.*
+Un desafío clave del proyecto es el **severo desbalanceo de clases** en el dataset, lo que requiere estrategias específicas para asegurar que el modelo sea sensible a las clases minoritarias, especialmente a las más severas.
 
-| Entrada | Descripción simple | Unidad de Medida | Justificación |
-| :--- | :--- | :--- | :--- |
-| **`Software planeado`** | La cantidad inicial de requerimientos. | Requerimientos | Es el valor inicial del stock `Requerimientos`. |
-| **`Equipo Inicial`** | Con cuántos desarrolladores experimentados se inicia. | Personas | Es el valor inicial del stock `Personal experimentado`. |
-| **`Periodo de Capacitación`** | Cuántos meses tarda un nuevo empleado en ser productivo. | Meses | Constante que define la velocidad de asimilación del personal. |
-| **`Productividad nominal`** | La tasa de trabajo ideal de un desarrollador. | Req./Persona/Mes | Es la capacidad base del equipo antes de que las sobrecargas la afecten. |
-| **`Tamaño Equipo`** | El número de personas por equipo de desarrollo. | Personas/Equipo | Constante usada para calcular los mecanismos internos como `Número Equipos`. |
-| **`Frecuencia de Revisión del Cliente`** | Representa qué tan rápido el cliente revisa los avances. | Requerimientos/Mes | Nueva constante para modelar la disponibilidad y el compromiso del cliente. |
-| **`Factor de Generación de Ideas`** | Cuántos nuevos requerimientos surgen por cada uno que se revisa. | (Req. Nuevos / Req. Revisados) | Nueva constante para modelar la "creatividad" o volatilidad del cliente. |
-| **`Política de Control de Cambios`** | Simula qué tan estrictos somos aceptando cambios. | Tasa de Aprobación | Nueva constante para modelar el impacto de la gestión formal de cambios. |
+### 2. Dataset
 
-#### **Salidas (El Tablero de Resultados)**
-*Estas son las mediciones que leemos del tablero para entender qué pasó.*
+Se utilizó el dataset **"Alzheimer MRI Disease Classification Dataset"** disponible en Kaggle, almacenado en formato Parquet.
 
-| Salida | Descripción simple | Unidad de Medida | Justificación |
-| :--- | :--- | :--- | :--- |
-| **Fecha Final de Entrega** | El tiempo real que tarda el proyecto en completar los requerimientos. | Meses | Es la métrica de éxito temporal más importante. Se obtiene al observar el gráfico del stock `Requerimientos`. |
-| **Costo Total del Proyecto** | Cuánto dinero se gastó en salarios durante todo el proyecto. | Dinero | Es la métrica de éxito financiero más importante. Se calcula creando un stock que acumula los costos basado en `Personal experimentado` y `Personal nuevo`. |
-| **Equipo Máximo Necesario** | El número más alto de personas que se tuvo que contratar para el proyecto. | Personas | Es la métrica de gestión de recursos más importante. Se obtiene viendo el valor máximo en la gráfica de la suma del personal. |
-| **Requerimientos Totales Completados** | Cuántos requerimientos se hicieron en total, para ver cuánto creció el proyecto. | Requerimientos | Mide el impacto directo del subsistema. Se obtiene observando todo lo que fluyó a través del nuevo stock `Software Pendiente de Revisión`. |
-| **Tiempo de Espera por Feedback** | El tiempo promedio que el software pasa esperando la revisión del cliente. | Meses | Diagnostica cuellos de botella. Se analiza el tamaño promedio del nuevo stock `Software Pendiente de Revisión`. |
+➡️ **Fuente:** [https://www.kaggle.com/datasets/borhanitrash/alzheimer-mri-disease-classification-dataset](https://www.kaggle.com/datasets/borhanitrash/alzheimer-mri-disease-classification-dataset)
+
+El dataset contiene 6,400 imágenes de RMN en escala de grises, pre-divididas en conjuntos de entrenamiento (5,120) y prueba (1,280).
+
+### 3. Metodología CRISP-DM
+
+El proyecto está estructurado siguiendo las fases de la metodología CRISP-DM para asegurar un desarrollo riguroso y ordenado.
+
+*   **Fase 1: Comprensión del Negocio:** Definición de objetivos y criterios de éxito.
+*   **Fase 2: Comprensión de los Datos:** Análisis Exploratorio de Datos (AED) para identificar características clave, distribución de clases y el desbalanceo.
+*   **Fase 3: Preparación de Datos:** Preprocesamiento de imágenes (redimensionamiento, normalización), codificación de etiquetas y cálculo de pesos de clase.
+*   **Fase 4: Modelado:** Diseño, construcción y compilación de la arquitectura de la Red Neuronal Convolucional (CNN).
+*   **Fase 5: Evaluación:** Entrenamiento del modelo y evaluación exhaustiva utilizando métricas clave.
+*   **Fase 6: Despliegue (Fuera del alcance):** Esta fase implicaría la implementación del modelo en una aplicación real.
+
+### 4. Estructura del Proyecto
+
+```
+nombre-del-repositorio/
+│
+├── 📁 preprocessed_data/      # Datos procesados listos para el modelado
+│   ├── class_weights.pkl
+│   ├── label_encoder.pkl
+│   ├── X_test.npy
+│   ├── X_train.npy
+│   ├── X_val.npy
+│   ├── y_test_cat.npy
+│   ├── y_test_encoded.npy
+│   ├── y_train_cat.npy
+│   └── y_val_cat.npy
+│
+├── 📁 test.parquet/           # Datos originales de prueba
+│
+├── 📁 train.parquet/          # Datos originales de entrenamiento
+│
+├── 📜 CNN-Fase1-Fase2-Fase3.ipynb  # Notebook para fases 1, 2 y 3 (Comprensión y Preparación)
+├── 📜 CNN-Fase4-Fase5.ipynb       # Notebook para fases 4 y 5 (Modelado y Evaluación)
+└── 📄 README.md                   # Este archivo
+```
+*Nota: El archivo `best_model_v2.h5` con los pesos del modelo entrenado se genera en el directorio raíz al ejecutar el segundo notebook.*
+
+### 5. Instalación
+
+Para ejecutar este proyecto, se recomienda crear un entorno virtual y luego instalar las dependencias.
+
+```bash
+# 1. Clona el repositorio
+git clone https://github.com/tu-usuario/nombre-del-repositorio.git
+cd nombre-del-repositorio
+
+# 2. Crea y activa un entorno virtual (opcional pero recomendado)
+python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+
+# 3. Instala las librerías necesarias
+pip install tensorflow pandas scikit-learn seaborn matplotlib numpy pyarrow
+```
+
+### 6. Uso
+
+Los notebooks Jupyter deben ejecutarse en orden, ya que el segundo depende de los archivos generados por el primero.
+
+1.  **Ejecutar `CNN-Fase1-Fase2-Fase3.ipynb`:** Este notebook cargará los datos originales desde las carpetas `parquet`, realizará el análisis exploratorio y guardará los arrays preprocesados en la carpeta `preprocessed_data/`.
+2.  **Ejecutar `CNN-Fase4-Fase5.ipynb`:** Este notebook cargará los datos preprocesados, construirá, entrenará y evaluará la CNN, guardando el mejor modelo como `best_model_v2.h5` y generando todas las visualizaciones de resultados.
+
+### 7. Arquitectura del Modelo
+
+La CNN está diseñada con bloques convolucionales progresivos para extraer características jerárquicas, junto con técnicas de regularización para prevenir el sobreajuste.
+
+| Capa                 | Configuración                                 | Propósito                                      |
+| -------------------- | --------------------------------------------- | ---------------------------------------------- |
+| `Rescaling`          | `1./255`                                      | Normalizar los píxeles al rango.        |
+| `Conv2D` x 2 + `MaxPool` | 32 filtros, (3,3), `relu`                     | Extraer características de bajo nivel (bordes).    |
+| `Conv2D` x 2 + `MaxPool` | 64 filtros, (3,3), `relu`                     | Extraer características de nivel medio (formas). |
+| `Conv2D` x 2 + `MaxPool` | 128 filtros, (3,3), `relu`                    | Extraer patrones complejos.                    |
+| `Flatten`            | -                                             | Convertir mapas 2D a un vector 1D.             |
+| `Dense` + `Dropout`  | 512 neuronas, `relu`, Dropout(0.5)            | Capa de clasificación densa con regularización.  |
+| `Dense` + `Dropout`  | 256 neuronas, `relu`, Dropout(0.4)            | Refinar la clasificación.                      |
+| `Dense` (Salida)     | 4 neuronas, `softmax`                         | Producir probabilidades para cada clase.       |
+| `BatchNormalization` | (Después de cada `Conv2D` y `Dense`)            | Estabilizar y acelerar el entrenamiento.       |
+
+### 8. Resultados y Evaluación
+
+El modelo final, evaluado en el conjunto de prueba, demostró un rendimiento excepcional con una **precisión general del 94.8%**.
+
+#### Matriz de Confusión Normalizada (% Recall)
+Esta matriz es clave, ya que muestra la sensibilidad del modelo para cada clase. El **Recall del 100% para 'Moderate Demented'** es el resultado más significativo, indicando que el modelo no clasificó erróneamente ningún caso de la etapa más severa.
+
+
+
+#### Capacidad Discriminativa (Curva ROC - AUC)
+Los valores de **AUC de 0.99 y 1.00** para todas las clases confirman que el modelo tiene una capacidad casi perfecta para distinguir entre las diferentes etapas de la enfermedad, validando su robustez frente al desbalanceo de clases.
+
+
+
+### 9. Conclusiones
+
+1.  **Alto Rendimiento Clínico:** El modelo no solo es preciso, sino también altamente sensible (`Recall`), especialmente para las clases más críticas, lo que lo convierte en una herramienta de diagnóstico potencialmente fiable.
+2.  **Modelo Robusto:** La estrategia de usar pesos de clase manejó eficazmente el desbalanceo, lo que se confirma con las excelentes métricas de F1-score y AUC.
+3.  **Entrenamiento Controlado:** El uso de callbacks como `EarlyStopping` y `ModelCheckpoint` fue fundamental para prevenir el sobreajuste y asegurar que el modelo final tuviera la mejor capacidad de generalización.
+4.  **Superioridad de la CNN:** La arquitectura convolucional fue esencial para capturar las relaciones espaciales y los patrones sutiles en las RMN.
+
+### 10. Trabajo Futuro
+
+*   **Data Augmentation:** Aplicar técnicas de aumento de datos para incrementar la variabilidad del conjunto de entrenamiento y mejorar aún más la generalización.
+*   **Transfer Learning:** Experimentar con arquitecturas pre-entrenadas (como VGG16, ResNet, o EfficientNet).
+*   **Explainable AI (XAI):** Implementar técnicas como Grad-CAM para visualizar qué regiones de la RMN son más importantes para las predicciones del modelo.
+*   **Despliegue:** Desarrollar una aplicación web simple (usando Streamlit o Flask) donde se pueda cargar una RMN y recibir una clasificación del modelo en tiempo real.
